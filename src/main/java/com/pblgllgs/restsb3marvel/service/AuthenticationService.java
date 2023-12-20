@@ -9,11 +9,13 @@ package com.pblgllgs.restsb3marvel.service;
 import com.pblgllgs.restsb3marvel.dto.security.LoginRequest;
 import com.pblgllgs.restsb3marvel.dto.security.LoginResponse;
 import com.pblgllgs.restsb3marvel.persistence.entity.User;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
@@ -69,5 +71,14 @@ public class AuthenticationService {
         } catch (Exception exception){
             throw new RuntimeException(exception);
         }
+    }
+
+    public UserDetails getUserloggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!(authentication instanceof UsernamePasswordAuthenticationToken)){
+            throw new AuthenticationCredentialsNotFoundException("Se requiere  authenticacion completa");
+        }
+        UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
+        return (UserDetails) auth.getPrincipal();
     }
 }
