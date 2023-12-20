@@ -4,6 +4,7 @@ import com.pblgllgs.restsb3marvel.dto.MyPageable;
 import com.pblgllgs.restsb3marvel.persistence.integration.marvel.dto.ComicDto;
 import com.pblgllgs.restsb3marvel.service.ComicService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class ComicController {
         this.comicService = comicService;
     }
 
+    @PreAuthorize("hasAuthority('comic:read-all')")
     @GetMapping
     public ResponseEntity<List<ComicDto>> findAllComics(
             @RequestParam(required = false) Long characterId,
@@ -34,6 +36,7 @@ public class ComicController {
         return ResponseEntity.ok(comicService.findAllComics(myPageable,characterId));
     }
 
+    @PreAuthorize("hasAuthority('comic:read-by-id')")
     @GetMapping("/{comicId}")
     public ResponseEntity<ComicDto> findComicById(
             @PathVariable("comicId") Long comicId

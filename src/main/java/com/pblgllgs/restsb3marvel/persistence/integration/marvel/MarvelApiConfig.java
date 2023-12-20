@@ -6,29 +6,28 @@ package com.pblgllgs.restsb3marvel.persistence.integration.marvel;
  *
  */
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public class MarvelApiConfig {
 
     @Qualifier("md5Encoder")
-    private final PasswordEncoder passwordEncoder;
-    private final long timestamp = new Date(System.currentTimeMillis()).getTime();
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    private long timestamp = new Date(System.currentTimeMillis()).getTime();
 
     @Value("${integration.marvel.public-key}")
     private String publicKey;
     @Value("${integration.marvel.private-key}")
     private String privateKey;
-
-    public MarvelApiConfig(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 
     private String getHash() {
         String hashDecoded = Long.toString(timestamp).concat(privateKey).concat(publicKey);
@@ -36,10 +35,12 @@ public class MarvelApiConfig {
     }
 
     public Map<String, String> getAuthenticationQueryParams() {
-        return Map.of(
-                "ts", Long.toString(timestamp),
-                "apikey", publicKey,
-                "hash", getHash()
-        );
+        Map<String, String> securityQueryParams = new HashMap<>();
+
+        securityQueryParams.put("ts", Long.toString(timestamp));
+        securityQueryParams.put("apikey", publicKey);
+        securityQueryParams.put("hash", this.getHash());
+
+        return securityQueryParams;
     }
 }
